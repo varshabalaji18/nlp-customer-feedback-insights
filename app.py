@@ -103,18 +103,14 @@ def render_sidebar() -> None:
         st.divider()
         st.markdown("**Product note**")
         st.caption("Use the scan to move from recurring customer friction to a prioritized conversation with the owning team.")
-        st.markdown("<div style='color:#64748b;font-size:.7rem;margin-top:2rem'>Portfolio project · v1.0</div>", unsafe_allow_html=True)
 
 
 def build_insights(results: pd.DataFrame) -> list[str]:
     negative = int((results.sentiment == "negative").sum())
     total = len(results)
-    keywords = Counter(keyword for values in results["keywords"] for keyword in values).most_common(3)
-    insights = [f"<strong>{negative / total:.0%} of analyzed feedback is negative.</strong> Prioritize the largest recurring friction signals before optimizing delight drivers."]
-    if keywords:
-        insights.append(f"<strong>{keywords[0][0].title()} is the leading signal.</strong> Review representative examples and route this theme to the relevant product or operations owner.")
+    insights = [f"<strong>{negative / total:.0%} of analyzed feedback is negative.</strong> Treat this as the first triage signal, then use the enriched records below to identify the underlying customer friction."]
     high_conf = int((results["sentiment_confidence"] >= .9).sum())
-    insights.append(f"<strong>{high_conf:,} records have high-confidence predictions.</strong> Use lower-confidence cases as a human-review queue before automating escalation.")
+    insights.append(f"<strong>{high_conf:,} records have high-confidence predictions.</strong> Confidence can support triage, but should be validated on labeled support data before automating escalation.")
     return insights
 
 
@@ -150,25 +146,12 @@ def render_batch() -> None:
     st.markdown('<div class="section-label">What the model is telling us</div>', unsafe_allow_html=True)
     for message in build_insights(results):
         st.markdown(f'<div class="insight">{message}</div>', unsafe_allow_html=True)
-    chart_col, topic_col = st.columns([1, 1.25])
-    with chart_col:
-        counts = results["sentiment"].value_counts().rename_axis("sentiment").reset_index(name="count")
-        fig = px.pie(counts, names="sentiment", values="count", hole=.68, color="sentiment", color_discrete_map={"positive":"#0f766e","negative":"#dc2626"})
-        fig.update_layout(title="Sentiment mix", margin=dict(t=55,b=10,l=10,r=10), legend=dict(orientation="h",y=-.05), paper_bgcolor="rgba(0,0,0,0)")
-        fig.update_traces(textinfo="percent", textfont_size=14)
-        st.plotly_chart(fig, use_container_width=True)
-    with topic_col:
-        keywords = Counter(keyword for values in results["keywords"] for keyword in values).most_common(10)
-        topic_frame = pd.DataFrame(keywords, columns=["topic", "mentions"]).sort_values("mentions")
-        fig = px.bar(topic_frame, x="mentions", y="topic", orientation="h", color="mentions", color_continuous_scale=[[0,"#bfdbfe"],[1,"#2563eb"]])
-        fig.update_layout(title="Recurring language signals", margin=dict(t=55,b=10,l=10,r=10), coloraxis_showscale=False, paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig, use_container_width=True)
-    entities = Counter(entity for values in results["entity_text"] for entity in values.split(", ") if entity)
-    if entities:
-        st.markdown('<div class="section-label">Entity landscape</div>', unsafe_allow_html=True)
-        fig = px.bar(pd.DataFrame(entities.most_common(10), columns=["entity","mentions"]), x="entity", y="mentions", color="mentions", color_continuous_scale="Blues")
-        fig.update_layout(margin=dict(t=25,b=10,l=10,r=10), coloraxis_showscale=False, paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig, use_container_width=True)
+    st.markdown('<div class="section-label">Sentiment overview</div>', unsafe_allow_html=True)
+    counts = results["sentiment"].value_counts().rename_axis("sentiment").reset_index(name="count")
+    fig = px.pie(counts, names="sentiment", values="count", hole=.68, color="sentiment", color_discrete_map={"positive":"#0f766e","negative":"#dc2626"})
+    fig.update_layout(title="Sentiment mix", margin=dict(t=55,b=10,l=10,r=10), legend=dict(orientation="h",y=-.05), paper_bgcolor="rgba(0,0,0,0)")
+    fig.update_traces(textinfo="percent", textfont_size=14)
+    st.plotly_chart(fig, use_container_width=True)
     st.markdown('<div class="section-label">Enriched feedback table</div>', unsafe_allow_html=True)
     st.dataframe(results[["text","sentiment","sentiment_confidence","entity_text","keywords"]], use_container_width=True, hide_index=True, column_config={"sentiment_confidence":st.column_config.ProgressColumn("Confidence",min_value=0,max_value=1,format="%.0%%")})
     st.download_button("Download enriched CSV", results.to_csv(index=False), "signaldesk_enriched_feedback.csv", "text/csv")

@@ -77,4 +77,4 @@ docker build -t feedback-intelligence .
 docker run -p 8501:8501 feedback-intelligence
 ```
 
-The public app link should be added here after deployment: `https://<your-streamlit-app>.streamlit.app`.
+Live app: https://nlp-customer-feedback-insights-ee2563wnvovmgzsdbsycrv.streamlit.app/

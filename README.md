@@ -56,7 +56,7 @@ Start with the included synthetic sample to validate the engineering path. For a
 ## Day 2 deliverables
 
 - `app.py` with Batch Processor and Live Playground tabs.
-- Plotly sentiment, topic, and entity dashboards plus safe HTML entity highlighting.
+- Plotly sentiment dashboard, executive readout, enriched table, and safe HTML entity highlighting in the live playground.
 - `src/evaluation.py` and `scripts/evaluate.py` for accuracy, macro-F1, confusion matrix, and classification report output.
 - `notebooks/01_day1_pipeline.ipynb` for a reproducible walkthrough.
 - `Dockerfile`, `.streamlit/config.toml`, and a deployment-ready `requirements.txt`.
@@ -78,3 +78,4 @@ docker run -p 8501:8501 feedback-intelligence
 ```
 
 Live app: https://nlp-customer-feedback-insights-ee2563wnvovmgzsdbsycrv.streamlit.app/
+

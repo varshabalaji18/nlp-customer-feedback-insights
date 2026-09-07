@@ -59,6 +59,18 @@ def get_pipeline() -> FeedbackInsightsPipeline:
     return FeedbackInsightsPipeline()
 
 
+def analyze_with_status(texts: list[str], action: str) -> pd.DataFrame:
+    """Run inference with visible progress so model startup never feels like a dead click."""
+    with st.status(f"Starting {action}…", expanded=True) as status:
+        st.write("Loading the transformer and entity models. The first run may take a little longer.")
+        pipeline = get_pipeline()
+        st.write(f"Analyzing {len(texts):,} feedback record{'s' if len(texts) != 1 else ''}…")
+        results = pipeline.analyze_texts(texts)
+        st.write("Sentiment, entities, and keywords extracted.")
+        status.update(label="Analysis complete", state="complete", expanded=False)
+    return results
+
+
 def highlight_entities(text: str, entities: list[dict]) -> str:
     pieces: list[str] = []
     cursor = 0
@@ -124,8 +136,7 @@ def render_batch() -> None:
     st.caption(f"Source: **{source_label}** · {len(frame):,} records ready")
     run_scan = st.button("Run intelligence scan", type="primary", use_container_width=True)
     if sample or run_scan:
-        with st.spinner("Running transformer inference and extraction…"):
-            st.session_state["batch_results"] = get_pipeline().analyze_texts(frame["text"].tolist())
+        st.session_state["batch_results"] = analyze_with_status(frame["text"].tolist(), "batch intelligence scan")
     results = st.session_state.get("batch_results")
     if results is None:
         return
@@ -169,8 +180,7 @@ def render_playground() -> None:
     st.caption("Use this surface to demonstrate how a raw support message becomes a structured, explainable prediction.")
     text = st.text_area("Customer feedback", "The mobile app crashes when I try to pay, but support resolved my issue quickly.", height=145, label_visibility="collapsed")
     if st.button("Analyze customer voice", type="primary") and text.strip():
-        with st.spinner("Scoring sentiment and extracting entities…"):
-            result = get_pipeline().analyze_texts([text]).iloc[0]
+        result = analyze_with_status([text], "live customer-voice analysis").iloc[0]
         c1, c2, c3 = st.columns(3)
         c1.metric("Predicted sentiment", str(result["sentiment"]).title())
         c2.metric("Model confidence", f"{result['sentiment_confidence']:.1%}")

@@ -84,8 +84,8 @@ def render_sidebar() -> None:
     with st.sidebar:
         st.markdown('<div class="brand-mark">◈ SignalDesk</div><div class="brand-sub">Customer intelligence workspace</div>', unsafe_allow_html=True)
         st.divider()
-        st.markdown("**Workspace**")
-        st.selectbox("Analysis mode", ["Feedback overview", "Issue discovery"], label_visibility="collapsed")
+        st.markdown("**Decision support**")
+        st.caption("Convert unstructured feedback into prioritized signals for product, support, and operations teams.")
         st.markdown("**Model stack**")
         st.caption("DistilBERT sentiment · spaCy NER · explainable keyword baseline")
         st.divider()
@@ -111,7 +111,7 @@ def render_batch() -> None:
     st.subheader("Turn feedback volume into a decision surface")
     st.caption("Upload a customer feedback export, then review sentiment, recurring friction, and extractable business signals in one view.")
     uploaded = st.file_uploader("Drop a CSV, TSV, JSON, or TXT file", type=["csv", "tsv", "json", "txt", "text"], label_visibility="collapsed")
-    sample = st.button("Use included sample dataset")
+    sample = st.button("Load sample & analyze")
     if uploaded is None and not sample:
         st.info("Start with the included sample dataset or upload your own feedback export.")
         return
@@ -122,7 +122,8 @@ def render_batch() -> None:
         return
     source_label = uploaded.name if uploaded is not None else "customer_feedback.csv"
     st.caption(f"Source: **{source_label}** · {len(frame):,} records ready")
-    if st.button("Run intelligence scan", type="primary", use_container_width=True):
+    run_scan = st.button("Run intelligence scan", type="primary", use_container_width=True)
+    if sample or run_scan:
         with st.spinner("Running transformer inference and extraction…"):
             st.session_state["batch_results"] = get_pipeline().analyze_texts(frame["text"].tolist())
     results = st.session_state.get("batch_results")
@@ -195,5 +196,4 @@ with batch_tab:
     render_batch()
 with playground_tab:
     render_playground()
-
 

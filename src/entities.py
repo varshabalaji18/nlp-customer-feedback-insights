@@ -50,7 +50,12 @@ class EntityKeywordExtractor:
         if self.using_spacy:
             candidates = [token.lemma_.lower() for token in doc if token.is_alpha and not token.is_stop and len(token) > 2]
         else:
-            stop = {"the", "and", "for", "with", "this", "that", "have", "has", "but", "not", "was", "from"}
+            stop = {
+                "the", "and", "for", "with", "this", "that", "have", "has", "but", "not", "was", "from",
+                "when", "while", "then", "than", "into", "over", "under", "after", "before", "just",
+                "try", "tried", "trying", "get", "got", "make", "made", "use", "used", "using", "could",
+                "would", "should", "will", "can", "please", "very", "also", "still", "one", "two", "my", "our",
+            }
             candidates = [w.lower() for w in re.findall(r"[A-Za-z]{3,}", text) if w.lower() not in stop]
         counts = Counter(candidates)
         return [term for term, _ in counts.most_common(top_k)]

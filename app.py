@@ -89,8 +89,8 @@ def render_sidebar() -> None:
         st.markdown("**Model stack**")
         st.caption("DistilBERT sentiment · spaCy NER · explainable keyword baseline")
         st.divider()
-        st.markdown("**Hiring-manager lens**")
-        st.caption("Unstructured feedback becomes an operational decision surface—not just a sentiment chart.")
+        st.markdown("**Product note**")
+        st.caption("Use the scan to move from recurring customer friction to a prioritized conversation with the owning team.")
         st.markdown("<div style='color:#64748b;font-size:.7rem;margin-top:2rem'>Portfolio project · v1.0</div>", unsafe_allow_html=True)
 
 

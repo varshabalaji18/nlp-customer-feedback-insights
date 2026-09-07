@@ -178,8 +178,6 @@ def render_playground() -> None:
             fig = go.Figure(go.Bar(x=list(probs.values()), y=[key.title() for key in probs], orientation="h", marker_color=["#dc2626" if key == "negative" else "#0f766e" for key in probs]))
             fig.update_layout(title="Confidence profile", xaxis_title="Probability", xaxis_range=[0,1], margin=dict(t=55,b=15,l=10,r=10), paper_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig, use_container_width=True)
-        st.markdown('<div class="section-label">Structured extraction</div>', unsafe_allow_html=True)
-        st.json({"sentiment_probabilities": result["sentiment_probabilities"], "keywords": result["keywords"], "entities": result["entities"]})
 
 
 render_sidebar()
